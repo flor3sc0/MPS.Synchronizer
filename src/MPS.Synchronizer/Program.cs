@@ -1,14 +1,20 @@
-namespace MPS.Synchronizer
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = Host.CreateApplicationBuilder(args);
-            builder.Services.AddHostedService<Worker>();
+using Coravel;
+using MPS.Synchronizer.Application;
+using MPS.Synchronizer.Extensions;
+using MPS.Synchronizer.Persistence;
 
-            var host = builder.Build();
-            host.Run();
-        }
-    }
-}
+
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddScheduler();
+builder.Services.AddApplicationDependency(builder.Configuration);
+builder.Services.AddPersistenceDependency(builder.Configuration);
+builder.Services.AddAppLogging(builder.Configuration);
+
+
+var host = builder.Build();
+host.Services.ConfigureScheduler();
+
+
+await host.MigrateDatabase();
+await host.RunAsync();
