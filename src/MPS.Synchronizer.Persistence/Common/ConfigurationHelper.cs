@@ -38,20 +38,29 @@ internal static class ConfigurationHelper
                 continue;
             }
 
-            if (property.PropertyInfo == null || property.PropertyInfo.PropertyType.IsClass)
+            if (property.PropertyInfo == null)
             {
                 continue;
             }
 
-            if (Attribute.IsDefined(property.PropertyInfo, typeof(SkipIndexGenerationAttribute)))
+            if (!Attribute.IsDefined(property.PropertyInfo, typeof(ForceIndexGenerationAttribute)))
             {
-                continue;
-            }
+                if (property.PropertyInfo.PropertyType.IsClass)
+                {
+                    continue;
+                }
 
+                if (Attribute.IsDefined(property.PropertyInfo, typeof(SkipIndexGenerationAttribute)))
+                {
+                    continue;
+                }
+            }
 
             builder.CreateIndex(tableName, property.GetColumnName(), property.PropertyInfo.Name);
         }
     }
+
+    internal static string BuildIndexName(string tableName, string propName) => Template(IxPref, tableName, propName);
 
     private static void CreateIndex<T>(this EntityTypeBuilder<T> builder, string tableName, string columnName, string propName)
         where T : class

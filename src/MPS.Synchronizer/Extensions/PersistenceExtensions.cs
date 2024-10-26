@@ -1,15 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using MPS.Synchronizer.Persistence;
 
-namespace MPS.Synchronizer.Persistence;
+namespace MPS.Synchronizer.Extensions;
 
-public static class DependencyInjection
+public static class PersistenceExtensions
 {
-    public static IServiceCollection AddPersistenceDependency(this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddPersistenceDependency(this IServiceCollection services, IConfiguration configuration)
     {
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
@@ -17,9 +13,7 @@ public static class DependencyInjection
         services.AddDbContext<AppDbContext>((serviceProvider, options) =>
         {
             options.EnableDetailedErrors();
-#if DEBUG
-            options.UseLoggerFactory(serviceProvider.GetService<ILoggerFactory>());
-#endif
+
             options.UseNpgsql(
                 configuration.GetSection("ConnectionStrings:PostgresConnection:connectionString").Value);
         });

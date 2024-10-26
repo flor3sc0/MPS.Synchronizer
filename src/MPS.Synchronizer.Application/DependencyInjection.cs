@@ -3,15 +3,10 @@ using Microsoft.Extensions.DependencyInjection;
 using MPS.Synchronizer.Application.ExternalApi.Handlers;
 using MPS.Synchronizer.Application.ExternalApi.Interfaces;
 using Refit;
-using System.Net.Http.Headers;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Unicode;
-using MPS.Synchronizer.Application.SynchronizationJobs.Statistics;
-using MPS.Synchronizer.Application.SynchronizationJobs;
 using System.Diagnostics;
-using Microsoft.Extensions.Options;
+using MPS.Synchronizer.Application.Settings;
 
 namespace MPS.Synchronizer.Application;
 
@@ -19,38 +14,32 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationDependency(this IServiceCollection services, IConfiguration configuration)
     {
-        ConfigureServices(services);
-        ConfigureRefitClient(services, configuration);
+        ConfigureRefitClients(services, configuration);
 
         return services;
     }
 
-
-    private static void ConfigureServices(IServiceCollection services)
+    private static void ConfigureRefitClients(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddTransient<WbPingJob>();
+        var wbApiOptions = configuration.GetSection(WbOptions.Wb).Get<WbOptions>().Api;
 
-        services.AddTransient<StatisticsIncomesSyncJob>();
-        services.AddTransient<StatisticsStocksSyncJob>();
-        services.AddTransient<StatisticsOrdersSyncJob>();
-        services.AddTransient<StatisticsSalesSyncJob>();
-        services.AddTransient<StatisticsRealizationReportSyncJob>();
+        AddRefitClient<IWbStatisticsApi>(services, wbApiOptions.Statistics);
     }
 
-    private static void ConfigureRefitClient(IServiceCollection services, IConfiguration configuration)
+    private static void AddRefitClient<TApi>(IServiceCollection services, string apiUrl) where TApi : class
     {
         //var retryPolicy = HttpPolicyExtensions
         //    .HandleTransientHttpError()
         //    .Or<TimeoutRejectedException>()
         //    .RetryAsync(5);
 
-        services.AddRefitClient<IWbStatisticsApi>(_ => new RefitSettings(new SystemTextJsonContentSerializer(GetDefaultJsonSerializerOptions())))
+        services.AddRefitClient<TApi>(_ => new RefitSettings(new SystemTextJsonContentSerializer(GetDefaultJsonSerializerOptions())))
             //.AddPolicyHandler(retryPolicy)
             .ConfigureHttpClient(
                 c =>
                 {
-                    c.BaseAddress = new Uri(configuration.GetSection("WbApi:Statistics").Value!);
-                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", configuration.GetSection("WbApi:Token").Value);
+                    c.BaseAddress = new Uri(apiUrl);
+                    //c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", configuration.GetSection("WbApi:Token").Value);
                 })
             .ConfigurePrimaryHttpMessageHandler(
                 () =>
@@ -64,7 +53,7 @@ public static class DependencyInjection
                 });
     }
 
-    public class DateOnlyConverterParse : JsonConverter<DateOnly>
+    private class DateOnlyConverterParse : JsonConverter<DateOnly>
     {
         public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

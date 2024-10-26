@@ -1,4 +1,6 @@
 ﻿using Coravel;
+using Microsoft.Extensions.Options;
+using MPS.Synchronizer.Application.Settings;
 using MPS.Synchronizer.Application.SynchronizationJobs;
 using MPS.Synchronizer.Application.SynchronizationJobs.Statistics;
 
@@ -8,33 +10,44 @@ public static class SchedulerExtensions
 {
     public static IServiceProvider ConfigureScheduler(this IServiceProvider services)
     {
+        var legalEntityOptions = services.GetService<IOptions<WbOptions>>().Value.LegalEntities;
+
         services.UseScheduler(scheduler =>
         {
-            //scheduler.Schedule<WbPingJob>()
-            //    .EveryFifteenMinutes()
-            //    .PreventOverlapping(nameof(WbPingJob));
+            foreach (var le in legalEntityOptions)
+            {
+                //scheduler.ScheduleWithParams<WbPingJob>(le)
+                //    .Cron(le.PingJobCron)
+                //    //.EveryTenSeconds()
+                //    .PreventOverlapping($"{nameof(WbPingJob)}_{le.Name}");
 
-            //scheduler.Schedule<StatisticsIncomesSyncJob>()
-            //    .EveryTenSeconds()
-            //    .PreventOverlapping(nameof(StatisticsIncomesSyncJob));
+                scheduler.ScheduleWithParams<StatisticsIncomesSyncJob>(le)
+                    //.Cron(le.StatisticsIncomesSyncJobCron)
+                    .EveryTenSeconds()
+                    .PreventOverlapping($"{nameof(StatisticsIncomesSyncJob)}_{le.Name}");
 
-            //scheduler.Schedule<StatisticsStocksSyncJob>()
-            //    .EveryTenSeconds()
-            //    .PreventOverlapping(nameof(StatisticsStocksSyncJob));
+                scheduler.ScheduleWithParams<StatisticsStocksSyncJob>(le)
+                    //.Cron(le.StatisticsStocksSyncJobCron)
+                    .EveryTenSeconds()
+                    .PreventOverlapping($"{nameof(StatisticsStocksSyncJob)}_{le.Name}");
 
-            //scheduler.Schedule<StatisticsOrdersSyncJob>()
-            //    .EveryTenSeconds()
-            //    .PreventOverlapping(nameof(StatisticsOrdersSyncJob));
+                scheduler.ScheduleWithParams<StatisticsOrdersSyncJob>(le)
+                    //.Cron(le.StatisticsStocksSyncJobCron)
+                    .EveryTenSeconds()
+                    .PreventOverlapping($"{nameof(StatisticsOrdersSyncJob)}_{le.Name}");
 
-            scheduler.Schedule<StatisticsSalesSyncJob>()
-                .EveryTenSeconds()
-                .PreventOverlapping(nameof(StatisticsSalesSyncJob));
+                scheduler.ScheduleWithParams<StatisticsSalesSyncJob>(le)
+                    //.Cron(le.StatisticsSalesSyncJobCron)
+                    .EveryTenSeconds()
+                    .PreventOverlapping($"{nameof(StatisticsSalesSyncJob)}_{le.Name}");
 
-            //scheduler.Schedule<StatisticsRealizationReportSyncJob>()
-            //    .EveryTenSeconds()
-            //    .PreventOverlapping(nameof(StatisticsRealizationReportSyncJob));
-        })
-        .OnError(exception => throw exception);
+                scheduler.ScheduleWithParams<StatisticsRealizationReportSyncJob>(le)
+                    //.Cron(le.StatisticsRealizationReportSyncJobCron)
+                    .EveryTenSeconds()
+                    .PreventOverlapping($"{nameof(StatisticsRealizationReportSyncJob)}_{le.Name}");
+            }
+        });
+        //.OnError(exception => throw exception); // todo delete
 
         return services;
     }

@@ -13,5 +13,5 @@ public interface IWbBaseApi
     /// </summary>
     /// <param name="cancellationToken">Токен</param>
     [Get("/ping")]
-    public Task<WbApiPingResponse> PingAsync(CancellationToken cancellationToken = default);
+    public Task<WbApiPingResponse> PingAsync([Authorize] string token, CancellationToken cancellationToken = default);
 }

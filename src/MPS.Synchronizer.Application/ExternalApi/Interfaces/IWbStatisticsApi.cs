@@ -19,7 +19,8 @@ public interface IWbStatisticsApi : IWbBaseApi
     /// <param name="cancellationToken">Токен</param>
     /// <returns>Список записей</returns>
     [Get("/api/v1/supplier/incomes")]
-    public Task<List<StatisticsIncome>> GetIncomesAsync([Query] StatisticsIncomesRequest request, CancellationToken cancellationToken = default);
+    public Task<List<StatisticsIncome>> GetIncomesAsync(
+        [Authorize] string token, [Query] StatisticsIncomesRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Возвращает остатки товаров на складах WB.
@@ -30,7 +31,8 @@ public interface IWbStatisticsApi : IWbBaseApi
     /// <param name="cancellationToken">Токен</param>
     /// <returns>Список записей</returns>
     [Get("/api/v1/supplier/stocks")]
-    public Task<List<StatisticsStock>> GetStocksAsync([Query] StatisticsStocksRequest request, CancellationToken cancellationToken = default);
+    public Task<List<StatisticsStock>> GetStocksAsync(
+        [Authorize] string token, [Query] StatisticsStocksRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Возвращает заказы.
@@ -43,7 +45,8 @@ public interface IWbStatisticsApi : IWbBaseApi
     /// <param name="cancellationToken">Токен</param>
     /// <returns>Список записей</returns>
     [Get("/api/v1/supplier/orders")]
-    public Task<List<StatisticsOrder>> GetOrdersAsync([Query] StatisticsOrdersRequest request, CancellationToken cancellationToken = default);
+    public Task<List<StatisticsOrder>> GetOrdersAsync(
+        [Authorize] string token, [Query] StatisticsOrdersRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Продажи и возвраты.
@@ -57,7 +60,8 @@ public interface IWbStatisticsApi : IWbBaseApi
     /// <param name="cancellationToken">Токен</param>
     /// <returns>Список записей</returns>
     [Get("/api/v1/supplier/sales")]
-    public Task<List<StatisticsSale>> GetSalesAsync([Query] StatisticsSalesRequest request, CancellationToken cancellationToken = default);
+    public Task<List<StatisticsSale>> GetSalesAsync(
+        [Authorize] string token, [Query] StatisticsSalesRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Детализация к еженедельному отчёту реализации.
@@ -69,5 +73,6 @@ public interface IWbStatisticsApi : IWbBaseApi
     /// <param name="cancellationToken">Токен</param>
     /// <returns>Список записей</returns>
     [Get("/api/v5/supplier/reportDetailByPeriod")]
-    public Task<List<StatisticsRealizationReport>> GetReportDetailByPeriodAsync([Query] StatisticsRealizationReportRequest request, CancellationToken cancellationToken = default);
+    public Task<List<StatisticsRealizationReport>> GetReportDetailByPeriodAsync(
+        [Authorize] string token, [Query] StatisticsRealizationReportRequest request, CancellationToken cancellationToken = default);
 }

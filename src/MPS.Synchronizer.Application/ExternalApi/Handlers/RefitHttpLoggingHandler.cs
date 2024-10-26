@@ -66,7 +66,7 @@ public class RefitHttpLoggingHandler(HttpMessageHandler innerHandler = null)
                 var end = DateTime.Now;
 
                 outputMessage.AppendLine($"{msgResponse} Content:");
-                outputMessage.AppendLine($"{msgResponse} {result}");
+                outputMessage.AppendLine($"{msgResponse} {content}");
                 outputMessage.AppendLine($"{msgResponse} Duration: {end - start}");
             }
         }

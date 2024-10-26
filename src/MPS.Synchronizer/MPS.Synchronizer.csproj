@@ -16,6 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\MPS.Synchronizer.Application\MPS.Synchronizer.Application.csproj" />
+    <ProjectReference Include="..\MPS.Synchronizer.Application\MPS.Synchronizer.Application.csproj" />
   </ItemGroup>
 </Project>
