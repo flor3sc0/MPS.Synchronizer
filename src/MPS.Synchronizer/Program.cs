@@ -11,7 +11,6 @@ builder.Services.AddPersistenceDependency(builder.Configuration);
 builder.Services.AddAppLogging(builder.Configuration);
 builder.Services.AddAppOptions(builder.Configuration);
 
-
 var host = builder.Build();
 host.Services.ConfigureScheduler();
 

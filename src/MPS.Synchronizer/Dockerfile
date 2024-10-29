@@ -20,4 +20,4 @@ RUN dotnet publish "./MPS.Synchronizer.csproj" -c $BUILD_CONFIGURATION -o /app/p
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "MPS.Synchronizer.dll"]
+# ENTRYPOINT ["dotnet", "MPS.Synchronizer.dll"]

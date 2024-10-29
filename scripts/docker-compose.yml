@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: ./../src
+      dockerfile: ./MPS.Synchronizer/Dockerfile
+    env_file:
+      - path: ./.env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - db
+    volumes:
+      - ./replace_vars.sh:/app/replace_vars.sh
+    entrypoint: >
+      sh -c "
+        /app/replace_vars.sh &&
+        dotnet MPS.Synchronizer.dll
+      "
+    restart: always
+
+  db:
+    image: postgres:15
+    env_file:
+      - path: ./.env
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  pgdata:
+
+
+# docker-compose up -d
+# docker-compose up app -d
+# docker-compose up -d --no-deps --build app
