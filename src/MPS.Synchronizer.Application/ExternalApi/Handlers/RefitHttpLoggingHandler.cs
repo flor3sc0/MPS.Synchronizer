@@ -29,6 +29,45 @@ public class RefitHttpLoggingHandler(HttpMessageHandler innerHandler = null)
         return response;
     }
 
+    private async Task<StringBuilder> GetRequestMessage(
+        string msgRequest,
+        HttpRequestMessage req,
+        CancellationToken cancellationToken)
+    {
+        var outputMessage = new StringBuilder();
+        outputMessage.AppendLine($"{msgRequest}========Start==========");
+        outputMessage.AppendLine(
+            $"{msgRequest} {req.Method} {req.RequestUri?.PathAndQuery} {req.RequestUri?.Scheme}/{req.Version}");
+        outputMessage.AppendLine($"{msgRequest} Host: {req.RequestUri?.Scheme}://{req.RequestUri?.Host}");
+
+        //foreach (var header in req.Headers)
+        //{
+        //    outputMessage.AppendLine($"{msgRequest} {header.Key}: {string.Join(", ", header.Value)}");
+        //}
+
+        if (req.Content != null)
+        {
+            //foreach (var header in req.Content.Headers)
+            //{
+            //    outputMessage.AppendLine($"{msgRequest} {header.Key}: {string.Join(", ", header.Value)}");
+            //}
+
+            if (req.Content is StringContent ||
+                IsTextBasedContentType(req.Headers) ||
+                IsTextBasedContentType(req.Content.Headers))
+            {
+                var result = await req.Content.ReadAsStringAsync(cancellationToken);
+                var content = result.Length > 255 ? $"{string.Join(string.Empty, result.Take(255))}..." : result;
+                outputMessage.AppendLine($"{msgRequest} Content:");
+                outputMessage.AppendLine($"{msgRequest} {result}");
+            }
+        }
+
+        outputMessage.AppendLine($"{msgRequest}==========End==========");
+
+        return outputMessage;
+    }
+
     private async Task<StringBuilder> GetResponseMessage(
         string id,
         HttpResponseMessage response,
@@ -44,17 +83,17 @@ public class RefitHttpLoggingHandler(HttpMessageHandler innerHandler = null)
         outputMessage.AppendLine(
             $"{msgResponse} {req.RequestUri?.Scheme.ToUpper()}/{resp.Version} {(int)resp.StatusCode} {resp.ReasonPhrase}");
 
-        foreach (var header in resp.Headers)
-        {
-            outputMessage.AppendLine($"{msgResponse} {header.Key}: {string.Join(", ", header.Value)}");
-        }
+        //foreach (var header in resp.Headers)
+        //{
+        //    outputMessage.AppendLine($"{msgResponse} {header.Key}: {string.Join(", ", header.Value)}");
+        //}
 
         if (resp.Content != null)
         {
-            foreach (var header in resp.Content.Headers)
-            {
-                outputMessage.AppendLine($"{msgResponse} {header.Key}: {string.Join(", ", header.Value)}");
-            }
+            //foreach (var header in resp.Content.Headers)
+            //{
+            //    outputMessage.AppendLine($"{msgResponse} {header.Key}: {string.Join(", ", header.Value)}");
+            //}
 
             if (resp.Content is StringContent ||
                 IsTextBasedContentType(resp.Headers) ||
@@ -72,45 +111,6 @@ public class RefitHttpLoggingHandler(HttpMessageHandler innerHandler = null)
         }
 
         outputMessage.AppendLine($"{msgResponse}==========End==========");
-
-        return outputMessage;
-    }
-
-    private async Task<StringBuilder> GetRequestMessage(
-        string msgRequest,
-        HttpRequestMessage req,
-        CancellationToken cancellationToken)
-    {
-        var outputMessage = new StringBuilder();
-        outputMessage.AppendLine($"{msgRequest}========Start==========");
-        outputMessage.AppendLine(
-            $"{msgRequest} {req.Method} {req.RequestUri?.PathAndQuery} {req.RequestUri?.Scheme}/{req.Version}");
-        outputMessage.AppendLine($"{msgRequest} Host: {req.RequestUri?.Scheme}://{req.RequestUri?.Host}");
-
-        foreach (var header in req.Headers)
-        {
-            outputMessage.AppendLine($"{msgRequest} {header.Key}: {string.Join(", ", header.Value)}");
-        }
-
-        if (req.Content != null)
-        {
-            foreach (var header in req.Content.Headers)
-            {
-                outputMessage.AppendLine($"{msgRequest} {header.Key}: {string.Join(", ", header.Value)}");
-            }
-
-            if (req.Content is StringContent ||
-                IsTextBasedContentType(req.Headers) ||
-                IsTextBasedContentType(req.Content.Headers))
-            {
-                var result = await req.Content.ReadAsStringAsync(cancellationToken);
-                var content = result.Length > 255 ? $"{string.Join(string.Empty, result.Take(255))}..." : result;
-                outputMessage.AppendLine($"{msgRequest} Content:");
-                outputMessage.AppendLine($"{msgRequest} {result}");
-            }
-        }
-
-        outputMessage.AppendLine($"{msgRequest}==========End==========");
 
         return outputMessage;
     }

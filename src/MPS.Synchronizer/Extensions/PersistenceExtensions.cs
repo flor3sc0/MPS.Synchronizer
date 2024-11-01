@@ -13,6 +13,7 @@ public static class PersistenceExtensions
         services.AddDbContext<AppDbContext>((serviceProvider, options) =>
         {
             options.EnableDetailedErrors();
+            options.EnableSensitiveDataLogging();
 
             options.UseNpgsql(
                 configuration.GetSection("ConnectionStrings:PostgresConnection:connectionString").Value);

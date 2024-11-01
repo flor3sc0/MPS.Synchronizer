@@ -6,7 +6,7 @@ using Refit;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Diagnostics;
-using MPS.Synchronizer.Application.Settings;
+using MPS.Synchronizer.Application.CommonModels;
 
 namespace MPS.Synchronizer.Application;
 
@@ -35,12 +35,7 @@ public static class DependencyInjection
 
         services.AddRefitClient<TApi>(_ => new RefitSettings(new SystemTextJsonContentSerializer(GetDefaultJsonSerializerOptions())))
             //.AddPolicyHandler(retryPolicy)
-            .ConfigureHttpClient(
-                c =>
-                {
-                    c.BaseAddress = new Uri(apiUrl);
-                    //c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", configuration.GetSection("WbApi:Token").Value);
-                })
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiUrl))
             .ConfigurePrimaryHttpMessageHandler(
                 () =>
                 {

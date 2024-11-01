@@ -1,8 +1,8 @@
-﻿using MPS.Synchronizer.Application.Settings;
+﻿using MPS.Synchronizer.Application.CommonModels;
 
 namespace MPS.Synchronizer.Extensions;
 
-public static class SettingsExtension
+public static class AppSettingsExtension
 {
     public static IServiceCollection AddAppOptions(this IServiceCollection services, IConfiguration configuration)
     {

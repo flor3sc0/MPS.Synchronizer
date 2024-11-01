@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MPS.Synchronizer.Application.Settings;
+namespace MPS.Synchronizer.Application.CommonModels;
 
 public class WbOptions : IValidatableObject
 {

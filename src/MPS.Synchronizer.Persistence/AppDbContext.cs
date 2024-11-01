@@ -30,7 +30,8 @@ namespace MPS.Synchronizer.Persistence
         {
             foreach (var entry in ChangeTracker.Entries<BaseSyncEntity>())
             {
-                if (entry.State == EntityState.Added)
+                if (entry.State == EntityState.Added ||
+                    entry.State == EntityState.Modified)
                     entry.Entity.SyncDateTime = DateTime.Now;
             }
         }
