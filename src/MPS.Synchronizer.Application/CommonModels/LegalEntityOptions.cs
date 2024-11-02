@@ -10,21 +10,13 @@ public class LegalEntityOptions
     [Required(AllowEmptyStrings = false)]
     public string Name { get; set; }
 
-    [Required(AllowEmptyStrings = false)]
-    public string PingJobCron { get; set; }
+    [Required]
+    public LegalEntityStatisticsOptions Statistics { get; set; }
 
-    [Required(AllowEmptyStrings = false)]
-    public string StatisticsIncomesSyncJobCron { get; set; }
-
-    [Required(AllowEmptyStrings = false)]
-    public string StatisticsStocksSyncJobCron { get; set; }
-
-    [Required(AllowEmptyStrings = false)]
-    public string StatisticsOrdersSyncJobCron { get; set; }
-
-    [Required(AllowEmptyStrings = false)]
-    public string StatisticsSalesSyncJobCron { get; set; }
-
-    [Required(AllowEmptyStrings = false)]
-    public string StatisticsRealizationReportSyncJobCron { get; set; }
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        var validationResults = new List<ValidationResult>();
+        Validator.TryValidateObject(Statistics, new ValidationContext(Statistics), validationResults);
+        return validationResults;
+    }
 }

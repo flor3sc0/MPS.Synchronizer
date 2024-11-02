@@ -19,7 +19,7 @@ public class StatisticsStocksSyncJob(IWbStatisticsApi apiService, AppDbContext a
     {
         Log.Information($"Invoke {GetType().Name} for '{options.Name}'");
 
-        var alreadyInit = await appDbContext.Set<StatisticsStock>().AnyAsync();
+        var alreadyInit = await appDbContext.Set<StatisticsStock>().AnyAsync(x => x.LegalEntity == options.Name);
 
         if (alreadyInit)
         {

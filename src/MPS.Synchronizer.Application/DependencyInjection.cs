@@ -6,7 +6,11 @@ using Refit;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Diagnostics;
+using System.Net;
 using MPS.Synchronizer.Application.CommonModels;
+using Polly;
+using Polly.Extensions.Http;
+using Polly.Timeout;
 
 namespace MPS.Synchronizer.Application;
 
@@ -28,13 +32,14 @@ public static class DependencyInjection
 
     private static void AddRefitClient<TApi>(IServiceCollection services, string apiUrl) where TApi : class
     {
-        //var retryPolicy = HttpPolicyExtensions
-        //    .HandleTransientHttpError()
-        //    .Or<TimeoutRejectedException>()
-        //    .RetryAsync(5);
+        var retryPolicy = HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .OrResult(x => x.StatusCode == HttpStatusCode.TooManyRequests)
+            .Or<TimeoutRejectedException>()
+            .WaitAndRetryAsync(5, _ => TimeSpan.FromMinutes(1));
 
         services.AddRefitClient<TApi>(_ => new RefitSettings(new SystemTextJsonContentSerializer(GetDefaultJsonSerializerOptions())))
-            //.AddPolicyHandler(retryPolicy)
+            .AddPolicyHandler(retryPolicy)
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiUrl))
             .ConfigurePrimaryHttpMessageHandler(
                 () =>

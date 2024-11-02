@@ -49,18 +49,7 @@ public class StatisticsSalesSyncJob(IWbStatisticsApi apiService, AppDbContext ap
 
         while (date <= lastDate)
         {
-            List<StatisticsSale> items;
-            try
-            {
-                items = await GetItems(date, 1);
-            }
-            catch (Exception e)
-            {
-                Log.Warning($"Большое количество запросов при инициализации {GetType().Name} для '{options.Name}'");
-                await Task.Delay(TimeSpan.FromMinutes(1));
-                items = await GetItems(date, 1);
-            }
-
+            var items = await GetItems(date, 1);
             var delayTask = Task.Delay(TimeSpan.FromMinutes(1));
 
             await CreateOrUpdateItems(items, saleIds);

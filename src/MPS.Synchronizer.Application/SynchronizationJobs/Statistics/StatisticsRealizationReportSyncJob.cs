@@ -72,17 +72,8 @@ public class StatisticsRealizationReportSyncJob(IWbStatisticsApi apiService, App
         do
         {
             request.Rrdid = rrdId;
-            try
-            {
-                items = await apiService.GetReportDetailByPeriodAsync(options.Token, request) ?? [];
-            }
-            catch (Exception e)
-            {
-                Log.Warning($"Большое количество запросов при инициализации {GetType().Name} для '{options.Name}'");
-                await Task.Delay(TimeSpan.FromMinutes(1));
-                items = await apiService.GetReportDetailByPeriodAsync(options.Token, request) ?? [];
-            }
 
+            items = await apiService.GetReportDetailByPeriodAsync(options.Token, request) ?? [];
             if (items.Count == 0)
             {
                 await Task.Delay(TimeSpan.FromMinutes(1));
