@@ -31,7 +31,7 @@ public class StatisticsSalesSyncJob(IWbStatisticsApi apiService, AppDbContext ap
         var dateFrom = DateTime.Now.AddDays(-1);
         var items = await GetItems(dateFrom);
 
-        await CreateOrUpdateItems(items, []);
+        await CreateOrUpdateItems(items);
     }
 
     private async Task InitSync()
@@ -39,7 +39,6 @@ public class StatisticsSalesSyncJob(IWbStatisticsApi apiService, AppDbContext ap
         var date = DateTime.Parse("2024-01-01").Date;
 
         var allItems = await GetItems(date, 0);
-        var saleIds = allItems.Select(x => x.SaleId).ToList();
         var lastDate = allItems.Min(x => x.LastChangeDate).Date;
         await SaveChanges(allItems);
         await Task.Delay(TimeSpan.FromMinutes(0.5));
@@ -52,7 +51,7 @@ public class StatisticsSalesSyncJob(IWbStatisticsApi apiService, AppDbContext ap
             var items = await GetItems(date, 1);
             var delayTask = Task.Delay(TimeSpan.FromMinutes(1));
 
-            await CreateOrUpdateItems(items, saleIds);
+            await CreateOrUpdateItems(items);
             await delayTask;
             date = date.AddDays(1);
             totalCount += items.Count;
@@ -61,7 +60,7 @@ public class StatisticsSalesSyncJob(IWbStatisticsApi apiService, AppDbContext ap
         Log.Information($"Invoked [INIT] {GetType().Name} for '{options.Name}' with {totalCount} items\n");
     }
 
-    private async Task CreateOrUpdateItems(List<StatisticsSale> items, List<string> saleIdsToSkip)
+    private async Task CreateOrUpdateItems(List<StatisticsSale> items)
     {
         var newSaleIds = items.Select(x => x.SaleId);
         var existed = await appDbContext.Set<StatisticsSale>()
@@ -74,14 +73,19 @@ public class StatisticsSalesSyncJob(IWbStatisticsApi apiService, AppDbContext ap
             .ToDictionaryAsync(x => x.SaleId, x => x.Id);
 
         var toCreate = new List<StatisticsSale>();
+        var skipped = 0;
+        var localDbSet = appDbContext.Set<StatisticsSale>().Local;
         foreach (var item in items)
         {
-            if (saleIdsToSkip.Contains(item.Srid))
-                continue;
-
-            if (existed.TryGetValue(item.SaleId, out var id))
+            if (localDbSet.Any(x => x.SaleId == item.SaleId))
             {
-                item.Id = id;
+                skipped++;
+                continue;
+            }
+
+            if (existed.TryGetValue(item.SaleId, out var entityId))
+            {
+                item.Id = entityId;
 
                 appDbContext.Set<StatisticsSale>().Entry(item).State = EntityState.Modified;
                 appDbContext.Set<StatisticsSale>().Entry(item).Property(p => p.LegalEntity).IsModified = false;
@@ -94,8 +98,8 @@ public class StatisticsSalesSyncJob(IWbStatisticsApi apiService, AppDbContext ap
 
         await SaveChanges(toCreate);
         var created = toCreate.Count;
-        var updated = items.Count - toCreate.Count;
-        Log.Information($"Invoked {GetType().Name} for '{options.Name}': {created} created; {updated} updated;\n");
+        var updated = items.Count - toCreate.Count - skipped;
+        Log.Information($"Invoked {GetType().Name} for '{options.Name}': {created} created; {updated} updated; {skipped} skipped;\n");
     }
 
     private async Task<List<StatisticsSale>> GetItems(DateTime dateFrom, int flag = 0)

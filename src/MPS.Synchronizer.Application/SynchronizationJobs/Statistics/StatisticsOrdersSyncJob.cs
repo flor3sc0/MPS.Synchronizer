@@ -7,7 +7,7 @@ using MPS.Synchronizer.Application.ExternalApi.Models.Statistics;
 using MPS.Synchronizer.Domain.Entities.Statistics;
 using MPS.Synchronizer.Persistence;
 using Serilog;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Linq;
 
 namespace MPS.Synchronizer.Application.SynchronizationJobs.Statistics;
 
@@ -32,7 +32,7 @@ public class StatisticsOrdersSyncJob(IWbStatisticsApi apiService, AppDbContext a
         var dateFrom = DateTime.Now.AddDays(-1);
         var items = await GetItems(dateFrom);
 
-        await CreateOrUpdateItems(items, []);
+        await CreateOrUpdateItems(items);
     }
 
     private async Task InitSync()
@@ -40,7 +40,6 @@ public class StatisticsOrdersSyncJob(IWbStatisticsApi apiService, AppDbContext a
         var date = DateTime.Parse("2024-01-01").Date;
 
         var allItems = await GetItems(date, 0);
-        var srids = allItems.Select(x => x.Srid).ToList();
         var lastDate = allItems.Min(x => x.LastChangeDate).Date;
         await SaveChanges(allItems);
         await Task.Delay(TimeSpan.FromMinutes(0.5));
@@ -53,7 +52,7 @@ public class StatisticsOrdersSyncJob(IWbStatisticsApi apiService, AppDbContext a
             var items = await GetItems(date, 1);
             var delayTask = Task.Delay(TimeSpan.FromMinutes(1));
 
-            await CreateOrUpdateItems(items, srids);
+            await CreateOrUpdateItems(items);
             await delayTask;
             date = date.AddDays(1);
             totalCount += items.Count;
@@ -62,7 +61,7 @@ public class StatisticsOrdersSyncJob(IWbStatisticsApi apiService, AppDbContext a
         Log.Information($"Invoked [INIT] {GetType().Name} for '{options.Name}' with {totalCount} items\n");
     }
 
-    private async Task CreateOrUpdateItems(List<StatisticsOrder> items, List<string> sridsToSkip)
+    private async Task CreateOrUpdateItems(List<StatisticsOrder> items)
     {
         var newSrids = items.Select(x => x.Srid);
         var existed = await appDbContext.Set<StatisticsOrder>()
@@ -75,10 +74,15 @@ public class StatisticsOrdersSyncJob(IWbStatisticsApi apiService, AppDbContext a
             .ToDictionaryAsync(x => x.Srid, x => x.Id);
 
         var toCreate = new List<StatisticsOrder>();
+        var skipped = 0;
+        var localDbSet = appDbContext.Set<StatisticsOrder>().Local;
         foreach (var item in items)
         {
-            if (sridsToSkip.Contains(item.Srid))
+            if (localDbSet.Any(x => x.Srid == item.Srid))
+            {
+                skipped++;
                 continue;
+            }
 
             if (existed.TryGetValue(item.Srid, out var id))
             {
@@ -95,8 +99,8 @@ public class StatisticsOrdersSyncJob(IWbStatisticsApi apiService, AppDbContext a
 
         await SaveChanges(toCreate);
         var created = toCreate.Count;
-        var updated = items.Count - toCreate.Count;
-        Log.Information($"Invoked {GetType().Name} for '{options.Name}': {created} created; {updated} updated;\n");
+        var updated = items.Count - toCreate.Count - skipped;
+        Log.Information($"Invoked {GetType().Name} for '{options.Name}': {created} created; {updated} updated; {skipped} skipped;\n");
     }
 
     private async Task<List<StatisticsOrder>> GetItems(DateTime dateFrom, int flag = 0)
