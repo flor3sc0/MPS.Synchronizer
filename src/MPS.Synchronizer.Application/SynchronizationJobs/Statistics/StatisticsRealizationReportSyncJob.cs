@@ -37,7 +37,7 @@ public class StatisticsRealizationReportSyncJob(IWbStatisticsApi apiService, App
 
         if (periodAlreadySync)
         {
-            Log.Information($"Invoked {GetType().Name} for '{options.Name}'. Period {monday:MM.dd.yyyy} - {sunday:MM.dd.yyyy} already sync\n");
+            Log.Information($"Invoked {GetType().Name} for '{options.Name}'. Period {monday:dd.MM.yyyy} - {sunday:dd.MM.yyyy} already sync\n");
             return;
         }
 

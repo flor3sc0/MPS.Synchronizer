@@ -18,6 +18,10 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./MPS.Synchronizer.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
+USER root
+RUN chown -R app:app /app
+RUN chmod 755 /app
+USER app
 WORKDIR /app
 COPY --from=publish /app/publish .
 # ENTRYPOINT ["dotnet", "MPS.Synchronizer.dll"]

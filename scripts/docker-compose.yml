@@ -1,10 +1,11 @@
 services:
   app:
+    privileged: true
     build:
       context: ./../src
       dockerfile: ./MPS.Synchronizer/Dockerfile
     env_file:
-      - path: ./.env
+      - "./.env"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
     depends_on:
@@ -21,7 +22,7 @@ services:
   db:
     image: postgres:15
     env_file:
-      - path: ./.env
+      - "./.env"
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
