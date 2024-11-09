@@ -7,7 +7,6 @@ using MPS.Synchronizer.Application.ExternalApi.Models.Statistics;
 using MPS.Synchronizer.Domain.Entities.Statistics;
 using MPS.Synchronizer.Persistence;
 using Serilog;
-using System.Linq;
 
 namespace MPS.Synchronizer.Application.SynchronizationJobs.Statistics;
 

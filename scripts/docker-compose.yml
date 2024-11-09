@@ -6,6 +6,10 @@ services:
       dockerfile: ./MPS.Synchronizer/Dockerfile
     env_file:
       - "./.env"
+    deploy:
+      resources:
+        limits:
+          memory: 2048m
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
     depends_on:
@@ -23,6 +27,10 @@ services:
     image: postgres:15
     env_file:
       - "./.env"
+    deploy:
+      resources:
+        limits:
+          memory: 4096m
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
@@ -31,8 +39,3 @@ services:
 
 volumes:
   pgdata:
-
-
-# docker-compose up -d
-# docker-compose up app -d
-# docker-compose up -d --no-deps --build app
