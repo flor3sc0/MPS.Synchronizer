@@ -14,51 +14,51 @@ public static class SchedulerExtensions
         var legalEntityOptions = services.GetService<IOptions<WbOptions>>().Value.LegalEntities;
 
         services.UseScheduler(scheduler =>
-        {
-            foreach (var le in legalEntityOptions)
             {
-                //scheduler.ScheduleWithParams<WbPingJob>(le)
-                //    //.Cron(le.PingJobCron)
-                //    .EveryTenSeconds()
-                //    .PreventOverlapping($"{nameof(WbPingJob)}_{le.Name}");
+                foreach (var le in legalEntityOptions)
+                {
+                    scheduler.OnWorker("StatisticsSimple");
 
-                scheduler.OnWorker("StatisticsSimple");
+                    scheduler.ScheduleWithParams<WbPingJob>(le)
+                        .DailyAt(18, 30)
+                        .RunOnceAtStart()
+                        .PreventOverlapping($"{nameof(WbPingJob)}_{le.Name}");
 
-                scheduler.ScheduleWithParams<StatisticsIncomesSyncJob>(le)
-                    .DailyAt(le.Statistics.StatisticsIncomesSyncJobHour, le.Statistics.StatisticsIncomesSyncJobMinute)
-                    .Zoned(TimeZoneInfo.Local)
-                    .RunOnceAtStart()
-                    .PreventOverlapping($"{nameof(StatisticsIncomesSyncJob)}_{le.Name}");
+                    scheduler.ScheduleWithParams<StatisticsIncomesSyncJob>(le)
+                        .DailyAt(le.Statistics.StatisticsIncomesSyncJobHour, le.Statistics.StatisticsIncomesSyncJobMinute)
+                        .Zoned(TimeZoneInfo.Local)
+                        .RunOnceAtStart()
+                        .PreventOverlapping($"{nameof(StatisticsIncomesSyncJob)}_{le.Name}");
 
-                scheduler.ScheduleWithParams<StatisticsStocksSyncJob>(le)
-                    .DailyAt(le.Statistics.StatisticsStocksSyncJobHour, le.Statistics.StatisticsStocksSyncJobMinute)
-                    .Zoned(TimeZoneInfo.Local)
-                    .RunOnceAtStart()
-                    .PreventOverlapping($"{nameof(StatisticsStocksSyncJob)}_{le.Name}");
+                    scheduler.ScheduleWithParams<StatisticsStocksSyncJob>(le)
+                        .DailyAt(le.Statistics.StatisticsStocksSyncJobHour, le.Statistics.StatisticsStocksSyncJobMinute)
+                        .Zoned(TimeZoneInfo.Local)
+                        .RunOnceAtStart()
+                        .PreventOverlapping($"{nameof(StatisticsStocksSyncJob)}_{le.Name}");
 
-                scheduler.OnWorker($"SO_{le.Name}");
-                scheduler.ScheduleWithParams<StatisticsOrdersSyncJob>(le)
-                    .DailyAt(le.Statistics.StatisticsOrdersSyncJobHour, le.Statistics.StatisticsOrdersSyncJobMinute)
-                    .Zoned(TimeZoneInfo.Local)
-                    .RunOnceAtStart()
-                    .PreventOverlapping($"{nameof(StatisticsOrdersSyncJob)}_{le.Name}");
+                    scheduler.OnWorker($"SO_{le.Name}");
+                    scheduler.ScheduleWithParams<StatisticsOrdersSyncJob>(le)
+                        .DailyAt(le.Statistics.StatisticsOrdersSyncJobHour, le.Statistics.StatisticsOrdersSyncJobMinute)
+                        .Zoned(TimeZoneInfo.Local)
+                        .RunOnceAtStart()
+                        .PreventOverlapping($"{nameof(StatisticsOrdersSyncJob)}_{le.Name}");
 
-                scheduler.OnWorker($"SS_{le.Name}");
-                scheduler.ScheduleWithParams<StatisticsSalesSyncJob>(le)
-                    .DailyAt(le.Statistics.StatisticsSalesSyncJobHour, le.Statistics.StatisticsSalesSyncJobMinute)
-                    .Zoned(TimeZoneInfo.Local)
-                    .RunOnceAtStart()
-                    .PreventOverlapping($"{nameof(StatisticsSalesSyncJob)}_{le.Name}");
+                    scheduler.OnWorker($"SS_{le.Name}");
+                    scheduler.ScheduleWithParams<StatisticsSalesSyncJob>(le)
+                        .DailyAt(le.Statistics.StatisticsSalesSyncJobHour, le.Statistics.StatisticsSalesSyncJobMinute)
+                        .Zoned(TimeZoneInfo.Local)
+                        .RunOnceAtStart()
+                        .PreventOverlapping($"{nameof(StatisticsSalesSyncJob)}_{le.Name}");
 
-                scheduler.OnWorker("SRR");
-                scheduler.ScheduleWithParams<StatisticsRealizationReportSyncJob>(le)
-                    .DailyAt(le.Statistics.StatisticsRealizationReportSyncJobHour, le.Statistics.StatisticsRealizationReportSyncJobMinute)
-                    .Zoned(TimeZoneInfo.Local)
-                    .RunOnceAtStart()
-                    .PreventOverlapping($"{nameof(StatisticsRealizationReportSyncJob)}_{le.Name}");
-            }
-        })
-        .OnError(exception => Log.Error(exception, ""));
+                    scheduler.OnWorker("SRR");
+                    scheduler.ScheduleWithParams<StatisticsRealizationReportSyncJob>(le)
+                        .DailyAt(le.Statistics.StatisticsRealizationReportSyncJobHour, le.Statistics.StatisticsRealizationReportSyncJobMinute)
+                        .Zoned(TimeZoneInfo.Local)
+                        .RunOnceAtStart()
+                        .PreventOverlapping($"{nameof(StatisticsRealizationReportSyncJob)}_{le.Name}");
+                }
+            })
+            .OnError(exception => Log.Error("[Coravel]: {Exception}", exception));
 
         return services;
     }

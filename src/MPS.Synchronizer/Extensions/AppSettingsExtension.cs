@@ -1,4 +1,5 @@
 ﻿using MPS.Synchronizer.Application.CommonModels;
+using MPS.Synchronizer.TelegramBot.CommonModels;
 
 namespace MPS.Synchronizer.Extensions;
 
@@ -10,6 +11,9 @@ public static class AppSettingsExtension
             .Bind(configuration.GetSection(WbOptions.Wb))
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        
+        services.AddOptions<TelegramBotOptions>()
+            .Bind(configuration.GetSection(TelegramBotOptions.TelegramBot));
 
         return services;
     }

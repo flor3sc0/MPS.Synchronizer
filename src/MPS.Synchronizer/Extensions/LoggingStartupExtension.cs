@@ -1,4 +1,6 @@
-﻿using Serilog;
+﻿using MPS.Synchronizer.TelegramBot.CommonModels;
+using Serilog;
+using Serilog.Events;
 
 namespace MPS.Synchronizer.Extensions;
 
@@ -9,12 +11,23 @@ public static class LoggingStartupExtension
         services.AddLogging(loggingBuilder =>
             loggingBuilder.AddSerilog(dispose: true));
 
-        var logger = new LoggerConfiguration()
+        var loggerConfiguration = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
             .Enrich.FromLogContext()
             .WriteTo.Console(outputTemplate:
-                "[{Timestamp:dd.MM.yyyy HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-            .CreateLogger();
+                "[{Timestamp:dd.MM.yyyy HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}");
+
+        var telegramBotOptions = configuration.GetSection(TelegramBotOptions.TelegramBot).Get<TelegramBotOptions>();
+        if (telegramBotOptions is { IsEnable: true })
+        {
+            loggerConfiguration.WriteTo.Telegram(
+                restrictedToMinimumLevel: LogEventLevel.Error,
+                botToken: telegramBotOptions.Token,
+                chatId: telegramBotOptions.ChatId.ToString(),
+                applicationName: "MPS.Synchronizer");
+        }
+
+        var logger = loggerConfiguration.CreateLogger();
 
         Log.Logger = logger;
 
