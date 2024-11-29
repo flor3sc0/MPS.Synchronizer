@@ -21,6 +21,7 @@ public static class SchedulerExtensions
 
                     scheduler.ScheduleWithParams<WbPingJob>(le)
                         .DailyAt(18, 30)
+                        .Zoned(TimeZoneInfo.Local)
                         .RunOnceAtStart()
                         .PreventOverlapping($"{nameof(WbPingJob)}_{le.Name}");
 
@@ -36,21 +37,20 @@ public static class SchedulerExtensions
                         .RunOnceAtStart()
                         .PreventOverlapping($"{nameof(StatisticsStocksSyncJob)}_{le.Name}");
 
-                    scheduler.OnWorker($"SO_{le.Name}");
+                    scheduler.OnWorker("Statistics");
+
                     scheduler.ScheduleWithParams<StatisticsOrdersSyncJob>(le)
                         .DailyAt(le.Statistics.StatisticsOrdersSyncJobHour, le.Statistics.StatisticsOrdersSyncJobMinute)
                         .Zoned(TimeZoneInfo.Local)
                         .RunOnceAtStart()
                         .PreventOverlapping($"{nameof(StatisticsOrdersSyncJob)}_{le.Name}");
 
-                    scheduler.OnWorker($"SS_{le.Name}");
                     scheduler.ScheduleWithParams<StatisticsSalesSyncJob>(le)
                         .DailyAt(le.Statistics.StatisticsSalesSyncJobHour, le.Statistics.StatisticsSalesSyncJobMinute)
                         .Zoned(TimeZoneInfo.Local)
                         .RunOnceAtStart()
                         .PreventOverlapping($"{nameof(StatisticsSalesSyncJob)}_{le.Name}");
 
-                    scheduler.OnWorker("SRR");
                     scheduler.ScheduleWithParams<StatisticsRealizationReportSyncJob>(le)
                         .DailyAt(le.Statistics.StatisticsRealizationReportSyncJobHour, le.Statistics.StatisticsRealizationReportSyncJobMinute)
                         .Zoned(TimeZoneInfo.Local)

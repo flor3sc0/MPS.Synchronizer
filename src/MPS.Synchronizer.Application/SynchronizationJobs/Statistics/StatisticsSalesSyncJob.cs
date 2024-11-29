@@ -37,14 +37,9 @@ public class StatisticsSalesSyncJob(IWbStatisticsApi apiService, AppDbContext ap
     private async Task InitSync()
     {
         var date = DateTime.Parse("2024-01-01").Date;
+        var lastDate = DateTime.Now.Date;
 
-        var allItems = await GetItems(date, 0);
-        var lastDate = allItems.Min(x => x.LastChangeDate).Date;
-        await SaveChanges(allItems);
-        await Task.Delay(TimeSpan.FromMinutes(0.5));
-
-        var totalCount = allItems.Count;
-        allItems.Clear();
+        var totalCount = 0;
 
         while (date <= lastDate)
         {
