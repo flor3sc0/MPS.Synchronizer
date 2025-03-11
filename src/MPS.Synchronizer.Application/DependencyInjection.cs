@@ -28,6 +28,7 @@ public static class DependencyInjection
         var wbApiOptions = configuration.GetSection(WbOptions.Wb).Get<WbOptions>().Api;
 
         AddRefitClient<IWbStatisticsApi>(services, wbApiOptions.Statistics);
+        AddRefitClient<IWbAdvertsApi>(services, wbApiOptions.Adverts);
     }
 
     private static void AddRefitClient<TApi>(IServiceCollection services, string apiUrl) where TApi : class

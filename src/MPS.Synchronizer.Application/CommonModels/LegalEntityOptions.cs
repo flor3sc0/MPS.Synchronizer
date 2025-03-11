@@ -13,6 +13,9 @@ public class LegalEntityOptions
     [Required]
     public LegalEntityStatisticsOptions Statistics { get; set; }
 
+    //[Required]
+    //public LegalEntityStatisticsOptions Adverts { get; set; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         var validationResults = new List<ValidationResult>();

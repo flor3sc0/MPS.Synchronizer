@@ -6,4 +6,7 @@ public class WbApiOptions
 {
     [Required(AllowEmptyStrings = false)]
     public string Statistics { get; set; }
+
+    [Required(AllowEmptyStrings = false)]
+    public string Adverts { get; set; }
 }
