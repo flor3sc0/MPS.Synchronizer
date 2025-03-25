@@ -2,7 +2,7 @@
 
 namespace MPS.Synchronizer.Application.ExternalApi.Models.Statistics
 {
-    public class StatisticsRealizationReportRequest(DateTime dateFrom, DateTime dateTo, int rrdid = 0, int limit = 50_000)
+    public class StatisticsRealizationReportRequest(DateTime dateFrom, DateTime dateTo, int rrdid = 0, int limit = 30_000)
     {
         /// <summary>
         /// Дата и время последнего изменения по поставке.
