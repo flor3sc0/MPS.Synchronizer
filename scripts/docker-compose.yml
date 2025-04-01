@@ -9,7 +9,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 3072m
+          memory: 4096m
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
     depends_on:
@@ -30,7 +30,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 4096m
+          memory: 3072m
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
