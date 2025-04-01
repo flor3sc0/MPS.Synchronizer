@@ -35,7 +35,7 @@ public class RefitHttpLoggingHandler(HttpMessageHandler innerHandler = null)
         CancellationToken cancellationToken)
     {
         var outputMessage = new StringBuilder();
-        outputMessage.AppendLine($"{msgRequest}========Start==========");
+        //outputMessage.AppendLine($"{msgRequest}========Start==========");
         outputMessage.AppendLine(
             $"{msgRequest} {req.Method} {req.RequestUri?.PathAndQuery} {req.RequestUri?.Scheme}/{req.Version}");
         outputMessage.AppendLine($"{msgRequest} Host: {req.RequestUri?.Scheme}://{req.RequestUri?.Host}");
@@ -63,7 +63,7 @@ public class RefitHttpLoggingHandler(HttpMessageHandler innerHandler = null)
             }
         }
 
-        outputMessage.AppendLine($"{msgRequest}==========End==========");
+        //outputMessage.AppendLine($"{msgRequest}==========End==========");
 
         return outputMessage;
     }
@@ -76,7 +76,7 @@ public class RefitHttpLoggingHandler(HttpMessageHandler innerHandler = null)
     {
         var outputMessage = new StringBuilder();
         var msgResponse = $"[{id} - Response]";
-        outputMessage.AppendLine($"{msgResponse}=========Start=========");
+        //outputMessage.AppendLine($"{msgResponse}=========Start=========");
 
         var resp = response;
 
@@ -88,29 +88,29 @@ public class RefitHttpLoggingHandler(HttpMessageHandler innerHandler = null)
         //    outputMessage.AppendLine($"{msgResponse} {header.Key}: {string.Join(", ", header.Value)}");
         //}
 
-        if (resp.Content != null)
-        {
-            //foreach (var header in resp.Content.Headers)
-            //{
-            //    outputMessage.AppendLine($"{msgResponse} {header.Key}: {string.Join(", ", header.Value)}");
-            //}
+        //if (resp.Content != null)
+        //{
+        //    //foreach (var header in resp.Content.Headers)
+        //    //{
+        //    //    outputMessage.AppendLine($"{msgResponse} {header.Key}: {string.Join(", ", header.Value)}");
+        //    //}
 
-            if (resp.Content is StringContent ||
-                IsTextBasedContentType(resp.Headers) ||
-                IsTextBasedContentType(resp.Content.Headers))
-            {
-                var start = DateTime.Now;
-                var result = await resp.Content.ReadAsStringAsync(cancellationToken);
-                var content = result.Length > 255 ? $"{string.Join(string.Empty, result.Take(255))}..." : result;
-                var end = DateTime.Now;
+        //    if (resp.Content is StringContent ||
+        //        IsTextBasedContentType(resp.Headers) ||
+        //        IsTextBasedContentType(resp.Content.Headers))
+        //    {
+        //        var start = DateTime.Now;
+        //        //var result = await resp.Content.ReadAsStringAsync(cancellationToken);
+        //        //var content = result.Length > 255 ? $"{string.Join(string.Empty, result.Take(255))}..." : result;
+        //        var end = DateTime.Now;
 
-                outputMessage.AppendLine($"{msgResponse} Content:");
-                outputMessage.AppendLine($"{msgResponse} {content}");
-                outputMessage.AppendLine($"{msgResponse} Duration: {end - start}");
-            }
-        }
+        //        //outputMessage.AppendLine($"{msgResponse} Content:");
+        //        //outputMessage.AppendLine($"{msgResponse} {content}");
+        //        outputMessage.AppendLine($"{msgResponse} Duration: {end - start}");
+        //    }
+        //}
 
-        outputMessage.AppendLine($"{msgResponse}==========End==========");
+        //outputMessage.AppendLine($"{msgResponse}==========End==========");
 
         return outputMessage;
     }
