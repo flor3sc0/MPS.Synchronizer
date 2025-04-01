@@ -67,11 +67,28 @@ public static class DependencyInjection
         }
     }
 
+    private class DateTimeConverterParse : JsonConverter<DateTime?>
+    {
+        public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            Debug.Assert(typeToConvert == typeof(DateTime?));
+
+            var value = reader.GetString();
+
+            return string.IsNullOrWhiteSpace(value) ? null : DateTime.Parse(value);
+        }
+
+        public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString());
+        }
+    }
+
     /// <summary>
     /// Creates new <see cref="JsonSerializerOptions"/> and fills it with default parameters
     /// </summary>
     /// <returns>Creates new <see cref="JsonSerializerOptions"/> and fills it with default parameters</returns>
-    public static JsonSerializerOptions GetDefaultJsonSerializerOptions()
+    private static JsonSerializerOptions GetDefaultJsonSerializerOptions()
     {
         var jsonSerializerOptions = new JsonSerializerOptions
         {
@@ -82,7 +99,10 @@ public static class DependencyInjection
 
         //jsonSerializerOptions.Converters.Add(new ObjectToInferredTypesConverter());
         //jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+
+        //Custom converters
         jsonSerializerOptions.Converters.Add(new DateOnlyConverterParse());
+        jsonSerializerOptions.Converters.Add(new DateTimeConverterParse());
 
         // Включение сериализации всех кодировок языка без экранирования.
         //jsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);

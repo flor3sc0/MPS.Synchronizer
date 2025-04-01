@@ -546,4 +546,68 @@ public class StatisticsRealizationReport : BaseSyncEntity
     [JsonPropertyName("report_type")]
     [Comment("Тип отчёта: 1 — стандартный, 2 — для уведомления о выкупе")]
     public int ReportType { get; set; }
+
+    /// <summary>
+    /// Фиксированный коэффициент склада по поставке
+    /// </summary>
+    [Column("dlv_prc")]
+    [JsonPropertyName("dlv_prc")]
+    [Comment("Фиксированный коэффициент склада по поставке")]
+    public decimal DlvPrc { get; set; }
+
+    /// <summary>
+    /// Дата начала действия фиксации
+    /// </summary>
+    [Column("fix_tariff_date_from")]
+    [JsonPropertyName("fix_tariff_date_from")]
+    [Comment("Дата начала действия фиксации")]
+    public DateTime? FixTariffDateFrom { get; set; }
+
+    /// <summary>
+    /// Дата окончания действия фиксации
+    /// </summary>
+    [Column("fix_tariff_date_to")]
+    [JsonPropertyName("fix_tariff_date_to")]
+    [Comment("Дата окончания действия фиксации")]
+    public DateTime? FixTariffDateTo { get; set; }
+
+    /// <summary>
+    /// Тип платежа за Эквайринг/Комиссии за организацию платежей
+    /// </summary>
+    [Column("payment_processing")]
+    [JsonPropertyName("payment_processing")]
+    [Comment("Тип платежа за Эквайринг/Комиссии за организацию платежей")]
+    public string PaymentProcessing { get; set; }
+
+    /// <summary>
+    /// Признак услуги платной доставки
+    /// </summary>
+    [Column("srv_dbs")]
+    [JsonPropertyName("srv_dbs")]
+    [Comment("Признак услуги платной доставки")]
+    public bool SrvDbs { get; set; }
+
+    /// <summary>
+    /// Номер сборочного задания
+    /// </summary>
+    [Column("assembly_id")]
+    [JsonPropertyName("assembly_id")]
+    [Comment("Номер сборочного задания")]
+    public long AssemblyId { get; set; }
+
+    /// <summary>
+    /// Признак B2B-продажи
+    /// </summary>
+    [Column("is_legal_entity")]
+    [JsonPropertyName("is_legal_entity")]
+    [Comment("Признак B2B-продажи")]
+    public bool IsLegalEntity { get; set; }
+
+    /// <summary>
+    /// Номер короба для платной приёмки
+    /// </summary>
+    [Column("trbx_id")]
+    [JsonPropertyName("trbx_id")]
+    [Comment("Номер короба для платной приёмки")]
+    public string TrbxId { get; set; }
 }
